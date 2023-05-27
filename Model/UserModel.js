@@ -46,7 +46,7 @@ const UserUpdate = async (number) => {
       { number },
       {
         $set: {
-          otptoken: encryptOtp(number),
+          otptoken: await encryptOtp(number),
         },
       }
     );
