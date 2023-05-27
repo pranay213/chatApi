@@ -12,7 +12,10 @@ const MONGO_DB_URL = process.env.MONGO_DB_URL;
 //connecting to mongodb
 async function main() {
   try {
-    let res = await mongoose.connect(MONGO_DB_URL);
+    let res = await mongoose.connect(MONGO_DB_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     console.log("DB IS CONNECTED");
   } catch (error) {
     console.log("error", error);
