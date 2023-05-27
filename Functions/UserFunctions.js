@@ -23,4 +23,6 @@ const decryptOtp = () => {};
 
 const verifyOtp = () => {};
 
+const expiryCheck = () => {};
+
 export { encryptOtp, decryptOtp, verifyOtp };

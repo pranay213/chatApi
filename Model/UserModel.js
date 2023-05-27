@@ -27,7 +27,10 @@ const UserSave = async (number) => {
 };
 const NewUserSave = async (number) => {
   try {
-    const newUser = new UserModel({ number, otptoken: await encryptOtp() });
+    const newUser = new UserModel({
+      number,
+      otptoken: await encryptOtp(number),
+    });
     let new_user = await newUser.save();
     if (new_user) {
       return { status: 200, message: "OTP sent successfully" };
@@ -43,7 +46,7 @@ const UserUpdate = async (number) => {
       { number },
       {
         $set: {
-          otptoken: encryptOtp(),
+          otptoken: encryptOtp(number),
         },
       }
     );
