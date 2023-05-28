@@ -1,7 +1,13 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import swaggerUi from "swagger-ui-express";
+import { createRequire } from "module";
+import fs from "fs";
+const require = createRequire(import.meta.url);
+const swaggerDocument = require("./swagger.json");
 import { UserRoute } from "./Routes/UserRoute.js";
+const customCss = fs.readFileSync(process.cwd() + "/swagger.css", "utf8");
 
 const app = express();
 app.use(express.json());
@@ -35,6 +41,11 @@ app.use((err, req, res, next) => {
   return next(err); // if it's not a 400, let the default error handling do it.
 });
 
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, { customCss })
+);
 //User Route
 app.use("/api/user", UserRoute);
 
