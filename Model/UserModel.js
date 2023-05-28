@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { encryptOtp } from "../Functions/UserFunctions.js";
+import { encryptOtp, verifyOtp } from "../Functions/UserFunctions.js";
 const { Schema, model } = mongoose;
 const UserSchema = new Schema(
   {
@@ -59,4 +59,20 @@ const UserUpdate = async (number) => {
   }
 };
 
-export { UserSchema, UserModel, UserSave };
+const UserCheck = async (number, otp) => {
+  let res = await UserModel.findOne({ number });
+
+  if (res._id) {
+    //otp checking
+    // dehasing otp
+    let response = await verifyOtp(res.otptoken, number, otp);
+    return response;
+  } else {
+    return {
+      status: 400,
+      message: "Number Not Registered",
+    };
+  }
+};
+
+export { UserSchema, UserModel, UserSave, UserCheck };

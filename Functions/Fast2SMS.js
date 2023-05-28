@@ -16,7 +16,7 @@ const sendOTP = async (number, otp) => {
         },
       }
     );
-    console.log("reponse", res);
+    // console.log("reponse", res);
     if (res.return) {
       return { status: 200, message: "OTP sent successfully" };
     }

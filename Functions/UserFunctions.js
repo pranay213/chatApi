@@ -27,8 +27,43 @@ const encryptOtp = async (number) => {
 
 const decryptOtp = () => {};
 
-const verifyOtp = () => {};
+const verifyOtp = async (token, number, otp) => {
+  try {
+    var decoded = jwt.verify(token, OTPSECRETKEY);
+    console.log("decoded", { decoded });
+    if (decoded) {
+      const { data } = decoded;
+      console.log(number, otp, data);
+      if (number == data.number && otp == data.otp) {
+        let authtoken = await authTokenFn(number);
+        if (authtoken) {
+          return { status: 200, message: "Login Success", token: authtoken };
+        } else {
+          return { status: 400, message: "Something Wrong" };
+        }
+      } else {
+        return { status: 400, message: "OTP Wrong" };
+      }
+    }
+  } catch (err) {
+    // err
+    // console.log({ err });
+    if (err) {
+      return { status: 400, message: "OTP expired .Please click on resend" };
+    }
+  }
+};
 
 const expiryCheck = () => {};
+
+const authTokenFn = async (number) => {
+  let AuthToken = await jwt.sign(
+    {
+      number,
+    },
+    OTPSECRETKEY
+  );
+  return AuthToken;
+};
 
 export { encryptOtp, decryptOtp, verifyOtp };
