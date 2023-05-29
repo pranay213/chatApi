@@ -7,11 +7,11 @@ body {
 }
 
 .swagger-ui .info .base-url {
-    font-size: 25px;
+    font-size: 20px;
 }
 
 .swagger-ui .markdown p {
-    font-size: 40px;
+    font-size: 20px;
 }
 
 .swagger-ui .btn.execute {
@@ -23,5 +23,5 @@ body {
 }
 
 .swagger-ui .scheme-container {
-    background-color: rgb(238, 176, 61);
+    background-color: rgb(234, 231, 225);
 }

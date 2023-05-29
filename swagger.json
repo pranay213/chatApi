@@ -1,7 +1,16 @@
 {
     "swagger": "2.0.0",
     "schemes": ["http","https"],
-    "servers":["chat-api.cylci.app"],
+    "servers": [
+        {
+            "url": " http://localhost:5000",
+            "description": "localhost"
+        },
+        {
+            "url": " https://chat-api.cyclic.app",
+            "description": "dev"
+        }
+      ],
     "basePath": "/api/user/auth",
     "paths" : {
         "/" : {
@@ -89,50 +98,6 @@
        
        
        
-    }, 
-    "definitions": {
-        "todosResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                     "type": "integer"
-                },
-                "task": {
-                    "type": "string"
-                },
-                "assignee": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "Task": {
-            "type": "object",
-            "properties": {
-                "task": {
-                    "type": "string"
-                },
-                "assignee": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "InvalidResponse": {
-            "type": "object",
-            "properties": {
-                "statusCode": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-
-        }
-    }
+    } 
+    
 }
