@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import swaggerUi from "swagger-ui-express";
 import { createRequire } from "module";
+import cors from "cors";
 import fs from "fs";
 const require = createRequire(import.meta.url);
 const swaggerDocument = require("./swagger.json");
@@ -11,6 +12,7 @@ const customCss = fs.readFileSync(process.cwd() + "/swagger.css", "utf8");
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 dotenv.config();
 const PORT = process.env.PORT;
 const MONGO_DB_URL = process.env.MONGO_DB_URL;

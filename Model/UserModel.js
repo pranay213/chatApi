@@ -62,7 +62,7 @@ const UserUpdate = async (number) => {
 const UserCheck = async (number, otp) => {
   let res = await UserModel.findOne({ number });
 
-  if (res._id) {
+  if (res?._id) {
     //otp checking
     // dehasing otp
     let response = await verifyOtp(res.otptoken, number, otp);
