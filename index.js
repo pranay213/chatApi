@@ -10,7 +10,6 @@ const swaggerDocument = require("./swagger.json");
 import { UserRoute } from "./Routes/UserRoute.js";
 const customCss = fs.readFileSync(process.cwd() + "/swagger.css", "utf8");
 var ip = require("ip");
-console.log("ip", ip.address());
 
 const app = express();
 app.use(express.json());
@@ -45,6 +44,11 @@ app.use((err, req, res, next) => {
   return next(err); // if it's not a 400, let the default error handling do it.
 });
 
+app.get("/", (req, res) => {
+  res.send({
+    ip: ip,
+  });
+});
 app.use(
   "/api-docs",
   swaggerUi.serve,
