@@ -77,4 +77,23 @@ const UserCheck = async (number, otp) => {
   }
 };
 
-export { UserSchema, UserModel, UserSave, UserCheck };
+const ImageUpdate = async (number, image) => {
+  try {
+    let updateUser = await UserModel.findOneAndUpdate(
+      { number },
+      {
+        $set: {
+          image,
+        },
+      }
+    );
+    console.log({ updateUser });
+    if (updateUser) {
+      return { status: 200, message: "Image Uploaded successfully" };
+    }
+  } catch (error) {
+    return { status: 500, message: "Something Error", error: error };
+  }
+};
+
+export { UserSchema, UserModel, UserSave, UserCheck, ImageUpdate };

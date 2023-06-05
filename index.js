@@ -10,10 +10,12 @@ const swaggerDocument = require("./swagger.json");
 import { UserRoute } from "./Routes/UserRoute.js";
 const customCss = fs.readFileSync(process.cwd() + "/swagger.css", "utf8");
 var ip = require("ip");
-
+const fileUpload = require("express-fileupload");
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload());
 dotenv.config();
 const PORT = process.env.PORT;
 const MONGO_DB_URL = process.env.MONGO_DB_URL;

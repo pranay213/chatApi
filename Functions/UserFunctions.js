@@ -61,9 +61,19 @@ const authTokenFn = async (number) => {
     {
       number,
     },
-    OTPSECRETKEY
+    AUTHSECRETKEY
   );
   return AuthToken;
 };
 
-export { encryptOtp, decryptOtp, verifyOtp };
+const verifyAuth = (lstoken) => {
+  try {
+    var decoded = jwt.verify(lstoken, AUTHSECRETKEY);
+    console.log("decoded", { decoded });
+
+    return { status: 200, message: "Valid Token", number: decoded.number };
+  } catch (err) {
+    return { status: 404, message: "Invalid token", err: err };
+  }
+};
+export { encryptOtp, decryptOtp, verifyOtp, verifyAuth };
