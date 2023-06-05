@@ -87,7 +87,8 @@ UserRoute.post("/auth/update", async (req, res) => {
   const { name, number } = req.body;
 });
 UserRoute.post("/auth/update-image", async (req, res) => {
-  const { image, number } = req.body;
+  // const { image, number } = req.body;
+  console.log(req.body);
 });
 
 export { UserRoute };
