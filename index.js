@@ -9,6 +9,8 @@ const require = createRequire(import.meta.url);
 const swaggerDocument = require("./swagger.json");
 import { UserRoute } from "./Routes/UserRoute.js";
 const customCss = fs.readFileSync(process.cwd() + "/swagger.css", "utf8");
+var ip = require("ip");
+console.log(ip.address());
 
 const app = express();
 app.use(express.json());

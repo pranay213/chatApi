@@ -83,4 +83,11 @@ UserRoute.post("/auth/verify-otp", async (req, res) => {
   }
 });
 
+UserRoute.post("/auth/update", async (req, res) => {
+  const { name, number } = req.body;
+});
+UserRoute.post("/auth/update-image", async (req, res) => {
+  const { image, number } = req.body;
+});
+
 export { UserRoute };
