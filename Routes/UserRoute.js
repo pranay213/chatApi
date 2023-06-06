@@ -5,6 +5,7 @@ import {
   UserModel,
   UserCheck,
   ImageUpdate,
+  getUser,
 } from "../Model/UserModel.js";
 import { verifyAuth } from "../Functions/UserFunctions.js";
 const UserRoute = express.Router();
@@ -125,6 +126,29 @@ UserRoute.post(
   }
 );
 
+UserRoute.get(
+  "/auth/get-user",
+  async (req, res, next) => {
+    let Resp = await checkAuth(req, res);
+    req.number = Resp;
+    console.log("this is-----");
+    next();
+  },
+  async (req, res) => {
+    try {
+      const { number } = req;
+      let Response = await getUser(number);
+      return res.send(Response);
+    } catch (error) {
+      return res.send({
+        status: 500,
+        message: "Something went Wrong",
+        error: error,
+      });
+    }
+  }
+);
+
 const checkAuth = async (req, res) => {
   try {
     const { lstoken } = req.headers;
@@ -152,5 +176,4 @@ const checkAuth = async (req, res) => {
     });
   }
 };
-
 export { UserRoute };

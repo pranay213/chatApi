@@ -96,4 +96,15 @@ const ImageUpdate = async (number, image) => {
   }
 };
 
-export { UserSchema, UserModel, UserSave, UserCheck, ImageUpdate };
+const getUser = async (number) => {
+  try {
+    let userDetails = await UserModel.findOne({ number });
+    // console.log({ userDetails });
+    let data = { name: userDetails.name, image: userDetails.image };
+    return { status: 200, message: "Fetched Success", data: data };
+  } catch (error) {
+    return { status: 500, message: "Something Error", error: error };
+  }
+};
+
+export { UserSchema, UserModel, UserSave, UserCheck, ImageUpdate, getUser };
