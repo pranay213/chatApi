@@ -1,4 +1,9 @@
 import express from "express";
+import path from "path";
+import fs from "fs";
+import os from "os";
+import FormData from "form-data";
+import https from "https";
 import {
   UserSave,
   UserSchema,
@@ -9,6 +14,9 @@ import {
 } from "../Model/UserModel.js";
 import { verifyAuth } from "../Functions/UserFunctions.js";
 const UserRoute = express.Router();
+import multer from "multer";
+import axios from "axios";
+const upload = multer({ dest: "../Uploads/temp_images/" });
 
 UserRoute.get("/", (req, res) =>
   res.send({
@@ -91,25 +99,46 @@ UserRoute.post("/auth/update", async (req, res) => {
 });
 UserRoute.post(
   "/auth/update-image",
+
   async (req, res, next) => {
     let Resp = await checkAuth(req, res);
+    if (Resp.status === 404) {
+      return res.send(Resp);
+    }
+    console.log({ Resp });
     req.number = Resp;
     next();
   },
   async (req, res) => {
     // const { image, number } = req.body;
-    console.log("this is executing");
-    const { number } = req;
-    console.log({ number });
+
     try {
+      const { number } = req;
       const { files } = req;
       if (files.image.mimetype.includes("image")) {
-        let base64data = new Buffer.from(files.image.data, "base64").toString(
-          "base64"
-        );
-        let img64 = "data:image/webp;base64," + base64data;
-        let resp = await ImageUpdate(number, img64);
-        return res.send(resp);
+        console.log("this is executing");
+        let __dirname = path.resolve();
+        console.log("file---", __dirname);
+
+        let sampleFile = req.files.image;
+        console.log(Date.now());
+
+        let fileName = `${Date.now()}-${sampleFile.name}`;
+        // let fileName = sampleFile.name;
+        let uploadPath = `${__dirname}/uploads/temp_images/${fileName}`;
+
+        sampleFile.mv(uploadPath, async function (err) {
+          if (err) {
+            return res.status(500).send(err);
+          }
+          let Resp = await uploadScreen(uploadPath);
+          console.log({ Resp });
+          res.send({
+            status: 200,
+            message: "uploaded sucess",
+            path: uploadPath,
+          });
+        });
       } else {
         return res.send({
           status: 400,
@@ -130,6 +159,10 @@ UserRoute.get(
   "/auth/get-user",
   async (req, res, next) => {
     let Resp = await checkAuth(req, res);
+    console.log({ Resp });
+    if (Resp.status === 404) {
+      return res.send(Resp);
+    }
     req.number = Resp;
     console.log("this is-----");
     next();
@@ -158,15 +191,14 @@ const checkAuth = async (req, res) => {
       console.log({ resp });
       if (resp.status === 200) {
         return resp.number;
-        next(req, res);
       } else {
         return res.send(resp);
       }
     } else {
-      return res.send({
+      return {
         status: 404,
         message: "Invalid Login",
-      });
+      };
     }
   } catch (error) {
     return res.send({
@@ -176,4 +208,27 @@ const checkAuth = async (req, res) => {
     });
   }
 };
+
+//upload to other server
+
+async function uploadScreen(uploadPath) {
+  try {
+    //create axios instance
+    const ApiCall = axios.create({
+      baseURL: "https://chat-api-pranay.000webhostapp.com/upload.php",
+      timeout: 60000, //optional
+      httpsAgent: new https.Agent({ keepAlive: true }),
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    let image = await fs.createReadStream(uploadPath);
+    var formData = new FormData();
+    formData.append("image", image);
+    let sending_image_result = await ApiCall.post("/", formData);
+    //Image is send
+    console.log("Result: ", sending_image_result.data);
+    return sending_image_result.data;
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+}
 export { UserRoute };

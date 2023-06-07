@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import path from "path";
 import swaggerUi from "swagger-ui-express";
 import { createRequire } from "module";
 import cors from "cors";
