@@ -2,7 +2,6 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import os from "os";
-import FormData from "form-data";
 import https from "https";
 import {
   UserSave,
@@ -12,10 +11,18 @@ import {
   ImageUpdate,
   getUser,
 } from "../Model/UserModel.js";
-import { verifyAuth } from "../Functions/UserFunctions.js";
+import {
+  fileDecryption,
+  fileEncryption,
+  getFile,
+  uploadScreen,
+  verifyAuth,
+} from "../Functions/UserFunctions.js";
 const UserRoute = express.Router();
 import multer from "multer";
 import axios from "axios";
+import { UploadFile } from "../Firebase/index.js";
+let __dirname = path.resolve();
 const upload = multer({ dest: "../Uploads/temp_images/" });
 
 UserRoute.get("/", (req, res) =>
@@ -115,6 +122,7 @@ UserRoute.post(
     try {
       const { number } = req;
       const { files } = req;
+      // console.log({ files });
       if (files.image.mimetype.includes("image")) {
         console.log("this is executing");
         let __dirname = path.resolve();
@@ -126,17 +134,34 @@ UserRoute.post(
         let fileName = `${Date.now()}-${sampleFile.name}`;
         // let fileName = sampleFile.name;
         let uploadPath = `${__dirname}/uploads/temp_images/${fileName}`;
+        let fileExtension = path.extname(uploadPath);
 
         sampleFile.mv(uploadPath, async function (err) {
           if (err) {
             return res.status(500).send(err);
           }
-          let Resp = await uploadScreen(uploadPath);
-          console.log({ Resp });
-          res.send({
+          let encryptRes = await fileEncryption(uploadPath);
+          console.log("encryptRes", encryptRes);
+          const { encryptedPath, new_name } = encryptRes;
+          console.log("-------", encryptedPath, new_name);
+          let new_fileName = `${fileName}.bat`;
+          setTimeout(async () => {
+            let Resp = await UploadFile(encryptedPath, new_name);
+            console.log({ Resp });
+            if (Resp) {
+              let imageRes = await ImageUpdate(number, new_name, fileExtension);
+            }
+            let delete_file = await fs.rmSync(uploadPath, {
+              force: true,
+            });
+            let encrypt_file = await fs.rmSync(encryptedPath, {
+              force: true,
+            });
+            console.log("delete_file", delete_file);
+          }, 10000);
+          return res.send({
             status: 200,
             message: "uploaded sucess",
-            path: uploadPath,
           });
         });
       } else {
@@ -148,7 +173,7 @@ UserRoute.post(
     } catch (err) {
       return res.send({
         status: 500,
-        message: "Something went Wrong",
+        message: "Something went Wrong ",
         error: err,
       });
     }
@@ -171,13 +196,94 @@ UserRoute.get(
     try {
       const { number } = req;
       let Response = await getUser(number);
-      return res.send(Response);
+      console.log("Response", Response);
+      // return res.send(Response);
+      if (Response.status === 200) {
+        if (Response?.data?.image) {
+          let get_file_path = await getFile(Response.data.image);
+          return res.send({
+            status: 200,
+            data: {
+              name: Response.data.name,
+              image: "",
+            },
+          });
+        } else {
+          return res.send({
+            status: 200,
+            data: {
+              name: Response.data.name,
+              image: "",
+            },
+          });
+        }
+      }
     } catch (error) {
       return res.send({
         status: 500,
         message: "Something went Wrong",
         error: error,
       });
+    }
+  }
+);
+
+UserRoute.use(
+  "/auth/get-image",
+  express.static(`${__dirname}/Uploads/temp_images/`)
+);
+UserRoute.get(
+  "/auth/get-image",
+  async (req, res, next) => {
+    let Resp = await checkAuth(req, res);
+    console.log({ Resp });
+    if (Resp.status === 404) {
+      return res.send(Resp);
+    }
+    req.number = Resp;
+    console.log("this is-----");
+    next();
+  },
+  async (req, res) => {
+    const { number } = req;
+    let Response = await getUser(number);
+    console.log("Response", Response);
+    if (Response?.data) {
+      const { image, ext } = Response.data;
+      if (image) {
+        console.log(`${__dirname}/Uploads/EnctryptedFiles/${image}`);
+        if (fs.existsSync(`${__dirname}/Uploads/EncryptedFiles/${image}`)) {
+          let Result = await fileDecryption(image, ext);
+          setTimeout(async () => {
+            let imagBuf = await fs.readFileSync(
+              `${__dirname}/Uploads/temp_images/${image}.${ext}`
+            );
+            let new_imagBuffer = new Buffer.from(imagBuf).toString("base64");
+            // console.log("new_imagBuffer", new_imagBuffer);
+
+            res.send({ status: 200, data: new_imagBuffer });
+            return;
+          }, 1000);
+        } else {
+          console.log("file not found!");
+          let imagBuf = fs.readFileSync(
+            `${__dirname}/Uploads/temp_images/default.webp`
+          );
+
+          let new_imagBuffer = new Buffer.from(imagBuf).toString("base64");
+          // console.log("new_imagBuffer", new_imagBuffer);
+          res.send({ status: 200, data: new_imagBuffer });
+          return;
+        }
+      }
+    } else {
+      let imagBuf = fs.readFileSync(
+        `${__dirname}/Uploads/temp_images/default.webp`
+      );
+
+      let new_imagBuffer = new Buffer.from(imagBuf).toString("base64");
+      console.log("new_imagBuffer", new_imagBuffer);
+      return res.send({ status: 200, data: new_imagBuffer });
     }
   }
 );
@@ -211,24 +317,4 @@ const checkAuth = async (req, res) => {
 
 //upload to other server
 
-async function uploadScreen(uploadPath) {
-  try {
-    //create axios instance
-    const ApiCall = axios.create({
-      baseURL: "https://chat-api-pranay.000webhostapp.com/upload.php",
-      timeout: 60000, //optional
-      httpsAgent: new https.Agent({ keepAlive: true }),
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    let image = await fs.createReadStream(uploadPath);
-    var formData = new FormData();
-    formData.append("image", image);
-    let sending_image_result = await ApiCall.post("/", formData);
-    //Image is send
-    console.log("Result: ", sending_image_result.data);
-    return sending_image_result.data;
-  } catch (error) {
-    console.log("Error: ", error);
-  }
-}
 export { UserRoute };

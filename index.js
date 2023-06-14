@@ -57,6 +57,7 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocument, { customCss })
 );
+
 //User Route
 app.use("/api/user", UserRoute);
 

@@ -1,9 +1,19 @@
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { sendOTP } from "./Fast2SMS.js";
+import axios from "axios";
+import https from "https";
+import fs from "fs";
+import FormData from "form-data";
+import Encryptor from "file-encryptor";
+import path from "path";
+import { UploadFile, downloadFile } from "../Firebase/index.js";
+let __dirname = path.resolve();
+
 dotenv.config();
 const OTPSECRETKEY = process.env.OTPSECRETKEY;
 const AUTHSECRETKEY = process.env.AUTHSECRETKEY;
+const ENCRTYPTKEY = process.env.ENCRTYPTKEY;
 
 const otpGenerate = () => {
   return Math.floor(100000 + Math.random() * 900000);
@@ -76,4 +86,47 @@ const verifyAuth = (lstoken) => {
     return { status: 404, message: "Invalid token", err: err };
   }
 };
-export { encryptOtp, decryptOtp, verifyOtp, verifyAuth };
+
+async function uploadScreen(uploadPath, new_fileName) {
+  try {
+    console.log("upload", { uploadPath });
+    let resultUpload = await UploadFile(uploadPath, new_fileName);
+    return resultUpload;
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+}
+
+const getFile = async (path) => {
+  let response = await downloadFile(path);
+};
+
+const fileEncryption = async (uploadPath) => {
+  let new_name = Date.now() + "-file.dat";
+  let encryptedPath = __dirname + "\\Uploads\\EncryptedFiles\\" + new_name;
+  Encryptor.encryptFile(uploadPath, encryptedPath, ENCRTYPTKEY, function (err) {
+    console.log(err, "errr");
+  });
+  let data = { encryptedPath, new_name };
+
+  return data;
+};
+
+const fileDecryption = async (path, ext) => {
+  // Decrypt file.
+  let full_path = `${__dirname}/Uploads/EncryptedFiles/${path}`;
+  let img_path = `${__dirname}/Uploads/temp_images/${path}.${ext}`;
+  Encryptor.decryptFile(full_path, img_path, ENCRTYPTKEY, function (err) {
+    // Decryption complete.
+  });
+};
+export {
+  encryptOtp,
+  decryptOtp,
+  verifyOtp,
+  verifyAuth,
+  fileEncryption,
+  uploadScreen,
+  getFile,
+  fileDecryption,
+};

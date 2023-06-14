@@ -6,6 +6,7 @@ const UserSchema = new Schema(
     number: String,
     name: String,
     image: String,
+    ext: String,
     otptoken: String,
   },
   {
@@ -77,13 +78,14 @@ const UserCheck = async (number, otp) => {
   }
 };
 
-const ImageUpdate = async (number, image) => {
+const ImageUpdate = async (number, image, ext) => {
   try {
     let updateUser = await UserModel.findOneAndUpdate(
       { number },
       {
         $set: {
-          image,
+          image: image,
+          ext: ext,
         },
       }
     );
@@ -100,7 +102,11 @@ const getUser = async (number) => {
   try {
     let userDetails = await UserModel.findOne({ number });
     // console.log({ userDetails });
-    let data = { name: userDetails.name, image: userDetails.image };
+    let data = {
+      name: userDetails.name,
+      image: userDetails.image,
+      ext: userDetails.ext,
+    };
     return { status: 200, message: "Fetched Success", data: data };
   } catch (error) {
     return { status: 500, message: "Something Error", error: error };
