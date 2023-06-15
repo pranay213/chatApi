@@ -263,7 +263,7 @@ UserRoute.get(
 
             res.send({ status: 200, data: new_imagBuffer });
             return;
-          }, 1000);
+          }, 5000);
         } else {
           console.log("file not found!");
           let imagBuf = fs.readFileSync(
