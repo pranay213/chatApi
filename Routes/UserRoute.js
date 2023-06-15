@@ -23,7 +23,7 @@ import multer from "multer";
 import axios from "axios";
 import { UploadFile } from "../Firebase/index.js";
 let __dirname = path.resolve();
-const upload = multer({ dest: "../Uploads/temp_images/" });
+// const upload = multer({ dest: "../Uploads/temp_images/" });
 
 UserRoute.get("/", (req, res) =>
   res.send({
