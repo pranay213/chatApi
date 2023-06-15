@@ -33,7 +33,7 @@ async function UploadFile(filepath, filename) {
 
 async function downloadFile(srcFilename) {
   console.log("srcFilename", srcFilename);
-  let destPath = `${__dirname}/Uploads/EncryptedFiles/${srcFilename}`;
+  let destPath = `${__dirname}/tmp/Uploads/EncryptedFiles/${srcFilename}`;
   const options = {
     // The path to which the file should be downloaded, e.g. "./file.txt"
     destination: destPath,

@@ -133,7 +133,7 @@ UserRoute.post(
 
         let fileName = `${Date.now()}-${sampleFile.name}`;
         // let fileName = sampleFile.name;
-        let uploadPath = `${__dirname}/uploads/temp_images/${fileName}`;
+        let uploadPath = `${__dirname}/tmp/uploads/temp_images/${fileName}`;
         let fileExtension = path.extname(uploadPath);
 
         sampleFile.mv(uploadPath, async function (err) {
@@ -230,7 +230,7 @@ UserRoute.get(
 
 UserRoute.use(
   "/auth/get-image",
-  express.static(`${__dirname}/Uploads/temp_images/`)
+  express.static(`${__dirname}/tmp/Uploads/temp_images/`)
 );
 UserRoute.get(
   "/auth/get-image",
@@ -251,12 +251,12 @@ UserRoute.get(
     if (Response?.data) {
       const { image, ext } = Response.data;
       if (image) {
-        console.log(`${__dirname}/Uploads/EnctryptedFiles/${image}`);
-        if (fs.existsSync(`${__dirname}/Uploads/EncryptedFiles/${image}`)) {
+        console.log(`${__dirname}/tmp/Uploads/EnctryptedFiles/${image}`);
+        if (fs.existsSync(`${__dirname}/tmp/Uploads/EncryptedFiles/${image}`)) {
           let Result = await fileDecryption(image, ext);
           setTimeout(async () => {
             let imagBuf = await fs.readFileSync(
-              `${__dirname}/Uploads/temp_images/${image}.${ext}`
+              `${__dirname}/tmp/Uploads/temp_images/${image}.${ext}`
             );
             let new_imagBuffer = new Buffer.from(imagBuf).toString("base64");
             // console.log("new_imagBuffer", new_imagBuffer);
@@ -267,7 +267,7 @@ UserRoute.get(
         } else {
           console.log("file not found!");
           let imagBuf = fs.readFileSync(
-            `${__dirname}/Uploads/temp_images/default.webp`
+            `${__dirname}/tmp/Uploads/temp_images/default.webp`
           );
 
           let new_imagBuffer = new Buffer.from(imagBuf).toString("base64");
@@ -278,7 +278,7 @@ UserRoute.get(
       }
     } else {
       let imagBuf = fs.readFileSync(
-        `${__dirname}/Uploads/temp_images/default.webp`
+        `${__dirname}/tmp/Uploads/temp_images/default.webp`
       );
 
       let new_imagBuffer = new Buffer.from(imagBuf).toString("base64");

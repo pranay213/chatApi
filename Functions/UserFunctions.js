@@ -103,7 +103,7 @@ const getFile = async (path) => {
 
 const fileEncryption = async (uploadPath) => {
   let new_name = Date.now() + "-file.dat";
-  let encryptedPath = __dirname + "\\Uploads\\EncryptedFiles\\" + new_name;
+  let encryptedPath = __dirname + "\\tmp\\Uploads\\EncryptedFiles\\" + new_name;
   Encryptor.encryptFile(uploadPath, encryptedPath, ENCRTYPTKEY, function (err) {
     console.log(err, "errr");
   });
@@ -114,8 +114,8 @@ const fileEncryption = async (uploadPath) => {
 
 const fileDecryption = async (path, ext) => {
   // Decrypt file.
-  let full_path = `${__dirname}/Uploads/EncryptedFiles/${path}`;
-  let img_path = `${__dirname}/Uploads/temp_images/${path}.${ext}`;
+  let full_path = `${__dirname}/tmp/Uploads/EncryptedFiles/${path}`;
+  let img_path = `${__dirname}/tmp/Uploads/temp_images/${path}.${ext}`;
   Encryptor.decryptFile(full_path, img_path, ENCRTYPTKEY, function (err) {
     // Decryption complete.
   });
