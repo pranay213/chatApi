@@ -275,8 +275,18 @@ UserRoute.get(
           res.send({ status: 200, data: new_imagBuffer });
           return;
         }
+      } else {
+        console.log("this is executetd");
+        let imagBuf = fs.readFileSync(
+          `${__dirname}/tmp/Uploads/temp_images/default.webp`
+        );
+
+        let new_imagBuffer = new Buffer.from(imagBuf).toString("base64");
+        console.log("new_imagBuffer", new_imagBuffer);
+        return res.send({ status: 200, data: new_imagBuffer });
       }
     } else {
+      console.log("this is executetd");
       let imagBuf = fs.readFileSync(
         `${__dirname}/tmp/Uploads/temp_images/default.webp`
       );
