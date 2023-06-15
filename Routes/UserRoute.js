@@ -10,6 +10,7 @@ import {
   UserCheck,
   ImageUpdate,
   getUser,
+  UserNameUpdate,
 } from "../Model/UserModel.js";
 import {
   fileDecryption,
@@ -294,6 +295,44 @@ UserRoute.get(
       let new_imagBuffer = new Buffer.from(imagBuf).toString("base64");
       console.log("new_imagBuffer", new_imagBuffer);
       return res.send({ status: 200, data: new_imagBuffer });
+    }
+  }
+);
+
+UserRoute.post(
+  "/auth/update-name",
+  async (req, res, next) => {
+    let Resp = await checkAuth(req, res);
+    console.log({ Resp });
+    if (Resp.status === 404) {
+      return res.send(Resp);
+    }
+    req.number = Resp;
+    console.log("this is-----");
+    next();
+  },
+  async (req, res) => {
+    try {
+      const { number } = req;
+      const { name } = req.body;
+      if (name) {
+        let Response = await UserNameUpdate(number, name);
+        if (Response) {
+          return res.send(Response);
+        }
+      } else {
+        return res.send({
+          status: 400,
+          message: "Please Enter Name",
+        });
+      }
+      let Response = await getUser(number);
+    } catch (error) {
+      return res.send({
+        status: 500,
+        message: "Something went Wrong",
+        error: error,
+      });
     }
   }
 );

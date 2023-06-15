@@ -113,4 +113,30 @@ const getUser = async (number) => {
   }
 };
 
-export { UserSchema, UserModel, UserSave, UserCheck, ImageUpdate, getUser };
+const UserNameUpdate = async (number, name) => {
+  try {
+    let updateUser = await UserModel.findOneAndUpdate(
+      { number },
+      {
+        $set: {
+          name,
+        },
+      }
+    );
+    console.log({ updateUser });
+    if (updateUser) {
+      return { status: 200, message: " Updated Success" };
+    }
+  } catch (error) {
+    return { status: 500, message: "Something Error", error: error };
+  }
+};
+export {
+  UserSchema,
+  UserModel,
+  UserSave,
+  UserCheck,
+  ImageUpdate,
+  getUser,
+  UserNameUpdate,
+};
