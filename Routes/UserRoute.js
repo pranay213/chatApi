@@ -133,7 +133,7 @@ UserRoute.post(
 
         let fileName = `${Date.now()}-${sampleFile.name}`;
         // let fileName = sampleFile.name;
-        let uploadPath = `${__dirname}/tmp/uploads/temp_images/${fileName}`;
+        let uploadPath = `${__dirname}/tmp/Uploads/temp_images/${fileName}`;
         let fileExtension = path.extname(uploadPath);
 
         sampleFile.mv(uploadPath, async function (err) {
