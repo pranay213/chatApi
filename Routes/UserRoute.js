@@ -123,13 +123,21 @@ UserRoute.post(
     try {
       const { number } = req;
       const { files } = req;
-      // console.log({ files });
+      console.log({ files });
+      if (files === null) {
+        return res.send({
+          status: 400,
+          message: "Please select Image",
+        });
+      }
+
       if (files.image.mimetype.includes("image")) {
         console.log("this is executing");
         let __dirname = path.resolve();
         console.log("file---", __dirname);
 
         let sampleFile = req.files.image;
+        console.log("sampleFile", sampleFile.data);
         console.log(Date.now());
 
         let fileName = `${Date.now()}-${sampleFile.name}`;
@@ -141,29 +149,49 @@ UserRoute.post(
           if (err) {
             return res.status(500).send(err);
           }
-          let encryptRes = await fileEncryption(uploadPath);
-          console.log("encryptRes", encryptRes);
-          const { encryptedPath, new_name } = encryptRes;
-          console.log("-------", encryptedPath, new_name);
-          let new_fileName = `${fileName}.bat`;
-          setTimeout(async () => {
-            let Resp = await UploadFile(encryptedPath, new_name);
-            console.log({ Resp });
-            if (Resp) {
-              let imageRes = await ImageUpdate(number, new_name, fileExtension);
+
+          //upload to firebase
+
+          let Resp = await UploadFile(uploadPath, fileName);
+          console.log({ Resp });
+          if (Resp) {
+            let imageRes = await ImageUpdate(number, fileName);
+            if (imageRes.status === 200) {
+              return res.send({
+                status: 200,
+                message: "uploaded sucess",
+              });
+            } else {
+              return res.send({
+                status: 400,
+                message: "uploaded failed",
+              });
             }
-            let delete_file = await fs.rmSync(uploadPath, {
-              force: true,
+          } else {
+            return res.send({
+              status: 400,
+              message: "Something went Wrong ",
             });
-            let encrypt_file = await fs.rmSync(encryptedPath, {
-              force: true,
-            });
-            console.log("delete_file", delete_file);
-          }, 10000);
-          return res.send({
-            status: 200,
-            message: "uploaded sucess",
-          });
+          }
+          // let encryptRes = await fileEncryption(uploadPath);
+          // console.log("encryptRes", encryptRes);
+          // const { encryptedPath, new_name } = encryptRes;
+          // console.log("-------", encryptedPath, new_name);
+          // let new_fileName = `${fileName}.bat`;
+          // setTimeout(async () => {
+          //   let Resp = await UploadFile(encryptedPath, new_name);
+          //   console.log({ Resp });
+          //   if (Resp) {
+          //     let imageRes = await ImageUpdate(number, new_name, fileExtension);
+          //   }
+          //   let delete_file = await fs.rmSync(uploadPath, {
+          //     force: true,
+          //   });
+          //   let encrypt_file = await fs.rmSync(encryptedPath, {
+          //     force: true,
+          //   });
+          //   console.log("delete_file", delete_file);
+          // }, 10000);
         });
       } else {
         return res.send({
@@ -201,12 +229,13 @@ UserRoute.get(
       // return res.send(Response);
       if (Response.status === 200) {
         if (Response?.data?.image) {
-          let get_file_path = await getFile(Response.data.image);
+          let imagBuffer = await getFile(Response.data.image);
+
           return res.send({
             status: 200,
             data: {
               name: Response.data.name,
-              image: "",
+              image: imagBuffer,
             },
           });
         } else {

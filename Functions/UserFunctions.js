@@ -8,7 +8,9 @@ import FormData from "form-data";
 import Encryptor from "file-encryptor";
 import path from "path";
 import { UploadFile, downloadFile } from "../Firebase/index.js";
+import webp from "webp-converter";
 let __dirname = path.resolve();
+webp.grant_permission();
 
 dotenv.config();
 const OTPSECRETKEY = process.env.OTPSECRETKEY;
@@ -98,7 +100,23 @@ async function uploadScreen(uploadPath, new_fileName) {
 }
 
 const getFile = async (path) => {
-  let response = await downloadFile(path);
+  if (fs.existsSync(`${__dirname}/tmp/Uploads/temp_images/${path}`)) {
+    let imagBuf = await fs.readFileSync(
+      `${__dirname}/tmp/Uploads/temp_images/${path}`
+    );
+    let new_imagBuffer = new Buffer.from(imagBuf).toString("base64");
+    return new_imagBuffer;
+  } else {
+    console.log("error");
+    let response = await downloadFile(path);
+    if (response) {
+      let imagBuf = await fs.readFileSync(
+        `${__dirname}/tmp/Uploads/temp_images/${path}`
+      );
+      let new_imagBuffer = new Buffer.from(imagBuf).toString("base64");
+      return new_imagBuffer;
+    }
+  }
 };
 
 const fileEncryption = async (uploadPath) => {
@@ -118,6 +136,19 @@ const fileDecryption = async (path, ext) => {
   let img_path = `${__dirname}/tmp/Uploads/temp_images/${path}.${ext}`;
   Encryptor.decryptFile(full_path, img_path, ENCRTYPTKEY, function (err) {
     // Decryption complete.
+  });
+};
+
+const webPconversion = () => {
+  const result = webp.webpmux_add(
+    "in.webp",
+    "icc_container.webp",
+    "image_profile.icc",
+    "icc",
+    (logging = "-v")
+  );
+  result.then((response) => {
+    console.log(response);
   });
 };
 export {

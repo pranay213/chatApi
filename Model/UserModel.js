@@ -78,14 +78,13 @@ const UserCheck = async (number, otp) => {
   }
 };
 
-const ImageUpdate = async (number, image, ext) => {
+const ImageUpdate = async (number, image) => {
   try {
     let updateUser = await UserModel.findOneAndUpdate(
       { number },
       {
         $set: {
           image: image,
-          ext: ext,
         },
       }
     );
